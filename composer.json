@@ -1,0 +1,21 @@
+{
+  "name": "label305/hwai",
+  "description": "Adding elegance to defining your webservices",
+  "authors": [
+    {
+      "name": "Joris Blaak",
+      "email": "joris@label305.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "HWai\\": "src/",
+      "Tests\\": "tests/"
+    }
+  },
+  "require": {},
+  "require-dev": {
+    "phpunit/phpunit": "^5.4",
+    "hamcrest/hamcrest-php": "^2.0"
+  }
+}

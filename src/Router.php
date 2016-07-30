@@ -92,7 +92,7 @@ class Router
             }
         }
         if ($data instanceof Data) {
-            $data = $data->getValue();
+            $data = $this->dataToArray($data->getValue());
         }
 
         return $data;

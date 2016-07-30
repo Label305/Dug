@@ -60,6 +60,57 @@ class RouteMatcherTest extends TestCase
         assertThat($result, is(true));
     }
 
+    public function testRegexValidWithArray()
+    {
+        /* Given */
+        $route = Route::build([
+            'tracks',
+            '/[0-9]+/'
+        ], function () {
+
+        });
+
+        /* When */
+        $result = RouteMatcher::matches($route, ['tracks', [123]]);
+
+        /* Then */
+        assertThat($result, is(true));
+    }
+     
+    public function testRegexValidWithMultipleInArray()
+    {
+        /* Given */
+        $route = Route::build([
+            'tracks',
+            '/[0-9]+/'
+        ], function () {
+
+        });
+
+        /* When */
+        $result = RouteMatcher::matches($route, ['tracks', [123, 321]]);
+
+        /* Then */
+        assertThat($result, is(true));
+    }
+
+    public function testRegexValidWithInvalidInArray()
+    {
+        /* Given */
+        $route = Route::build([
+            'tracks',
+            '/[0-9]+/'
+        ], function () {
+
+        });
+
+        /* When */
+        $result = RouteMatcher::matches($route, ['tracks', [123, 'asdf']]);
+
+        /* Then */
+        assertThat($result, is(false));
+    }
+
     public function testRegexNotValid()
     {
         /* Given */

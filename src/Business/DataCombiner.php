@@ -6,6 +6,7 @@ namespace HWai\Business;
 
 use HWai\Objects\Data;
 use HWai\Objects\PathProvider;
+use HWai\Objects\Reference;
 
 class DataCombiner
 {
@@ -49,17 +50,21 @@ class DataCombiner
     }
 
     /**
-     * @param Data  $item
-     * @param array $target
+     * @param Data|Reference $item
+     * @param array          $target
      * @return array
      */
-    private static function merge(Data $item, $target)
+    private static function merge($item, $target)
     {
-        $value = $item->getValue();
-        if (is_array($value)) {
-            $target = array_merge($target, $value);
+        if ($item instanceof Reference) {
+            $target = $item;
         } else {
-            $target[] = $value;
+            $value = $item->getValue();
+            if (is_array($value)) {
+                $target = array_merge($target, $value);
+            } else {
+                $target[] = $value;
+            }
         }
 
         return $target;

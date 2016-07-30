@@ -236,14 +236,14 @@ class RouterTest extends TestCase
         $router->register($route);
         $route = Route::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
             return [
-                Data::build(['users', 123, 'pets'], new Reference(['pets', 1])),
-                Data::build(['users', 123, 'pets'], new Reference(['pets', 2])),
+                Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 1])),
+                Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 2])),
             ];
         });
         $router->register($route);
 
         /* When */
-        $result = $router->fetch(['users', [123], 'pets']);
+        $result = $router->fetchSingle(['users', [123], 'pets']);
 
         /* Then */
         assertThat($result, is([
@@ -265,8 +265,8 @@ class RouterTest extends TestCase
         $router->register($route);
         $route = Route::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
             return [
-                new Reference(['pets', 1]),
-                new Reference(['pets', 2]),
+                Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 1])),
+                Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 2])),
             ];
         });
         $router->register($route);
@@ -274,7 +274,43 @@ class RouterTest extends TestCase
             return [
                 Data::build(['users', 123], [
                     'id' => 123,
-                    'pets' => new Reference(['users', 123, 'pets'])
+                    'pets' => new ReferenceToSingle(['users', 123, 'pets'])
+                ])
+            ];
+        });
+        $router->register($route);
+
+        /* When */
+        $result = $router->fetch(['users', [123]]);
+
+        /* Then */
+        assertThat($result, is([
+            [
+                'id' => 123,
+                'pets' => [
+                    ['name' => 'Fluffy'],
+                    ['name' => 'Loesje']
+                ]
+            ]
+        ]));
+    }
+
+    public function testReferenceListToMultiple()
+    {
+        /* Given */
+        $router = new Router();
+        $route = Route::build(['pets', '/[0-9]+/'], function (array $path) {
+            return [
+                Data::build(['pets', 1], ['name' => 'Fluffy']),
+                Data::build(['pets', 2], ['name' => 'Loesje'])
+            ];
+        });
+        $router->register($route);
+        $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
+            return [
+                Data::build(['users', 123], [
+                    'id' => 123,
+                    'pets' => new Reference(['pets', [1, 2]])
                 ])
             ];
         });

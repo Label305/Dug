@@ -8,7 +8,6 @@ use HWai\Exceptions\RouteNotFoundException;
 use HWai\Objects\Data;
 use HWai\Objects\Reference;
 use HWai\Objects\ReferenceToSingle;
-use HWai\Objects\Route;
 use HWai\Router;
 
 class ReferenceResolver
@@ -38,8 +37,7 @@ class ReferenceResolver
         foreach ($grouped as $group) {
             $combinedPath = $this->getPathForGroup($group);
             $dataForGroup = $this->router->data($combinedPath);
-            $route = $this->router->routeForPath($combinedPath);
-            $data = $this->replaceReferencesForRouteWithData($route, $data, $dataForGroup);
+            $data = $this->substitueReferences($data, $dataForGroup);
         }
 
         return $data;
@@ -93,7 +91,7 @@ class ReferenceResolver
             $route = $this->router->routeForPath($reference->getPath());
 
             if ($route === null) {
-                throw new RouteNotFoundException();
+                throw new RouteNotFoundException($reference->getPath());
             }
 
             if (!isset($groups[$route->toString()])) {
@@ -112,63 +110,34 @@ class ReferenceResolver
      */
     private function getPathForGroup(array $group):array
     {
-        $path = $group[0]->getPath();
-        foreach ($path as $key => $part) {
-            if (!is_array($part)) {
-                $path[$key] = [$part];
-            }
-        }
-
+        $path = [];
         foreach ($group as $reference) {
-            if ($reference === $group[0]) {
-                continue;
-            }
-
-            foreach ($reference->getPath() as $key => $part) {
-                $path[$key][] = $part;
-            }
+            $path = $this->extendPath($path, $reference->getPath());
         }
 
-        foreach ($path as $key => $part) {
-            $part = array_unique($part);
-            if (count($part) === 1) {
-                $path[$key] = $part[0];
-            } else {
-                $path[$key] = $part;
-            }
-        }
-
-        return $path;
+        return $this->cleanPath($path);
     }
 
     /**
-     * @param Route $route
-     * @param array $data
-     * @param array $replacementData
-     * @todo this might need some refactoring ;-)
+     * @param array $substitutions
      * @return array
      */
-    private function replaceReferencesForRouteWithData(Route $route, array $data, array $replacementData):array
+    private function substitueReferences(array $data, array $substitutions):array
     {
         foreach ($data as $key => $item) {
             if (is_array($item)) {
-                $data[$key] = $this->replaceReferencesForRouteWithData($route, $item, $replacementData);
-            } elseif ($item instanceof Data) {
+                $data[$key] = $this->substitueReferences($item, $substitutions);
+            }
+            if ($item instanceof Data) {
                 $value = $item->getValue();
                 if (is_array($value)) {
-                    $item->setValue($this->replaceReferencesForRouteWithData($route, $value, $replacementData));
+                    $item->setValue($this->substitueReferences($value, $substitutions));
                 } elseif ($value instanceof Reference) {
-                    if ($value instanceof ReferenceToSingle) {
-                        $data[$key] = $this->findReplacement($replacementData, $value);
-                    } else {
-                        $replacement = $this->findReplacements($replacementData, $value);
-                        $item->setValue($replacement !== null ? $replacement->getValue() : null);
-                    }
+                    $data[$key] = $this->replacementForReference($substitutions, $data[$key]);
                 }
-            } elseif ($item instanceof Reference) {
-                $data[$key] = $item instanceof ReferenceToSingle
-                    ? $this->findReplacement($replacementData, $item)
-                    : $this->findReplacements($replacementData, $item);
+            }
+            if ($item instanceof Reference) {
+                $data[$key] = $this->replacementForReference($substitutions, $item);
             }
         }
 
@@ -176,9 +145,21 @@ class ReferenceResolver
     }
 
     /**
+     * @param array $replacementData
+     * @param       $item
+     * @return Data|Data[]
+     */
+    private function replacementForReference(array $replacementData, Reference $item)
+    {
+        return $item instanceof ReferenceToSingle
+            ? $this->findReplacement($replacementData, $item)
+            : $this->findReplacements($replacementData, $item);
+    }
+
+    /**
      * @param Data[]    $replacementData
      * @param Reference $item
-     * @return mixed|null
+     * @return Data[]
      */
     private function findReplacements(array $replacementData, Reference $item)
     {
@@ -225,6 +206,42 @@ class ReferenceResolver
         }
 
         return true;
+    }
+
+    /**
+     * Remove duplicates and clean everything up nicely
+     * @param array $path
+     * @return array
+     */
+    private function cleanPath(array $path):array
+    {
+        foreach ($path as $key => $part) {
+            $part = array_unique($part);
+            if (count($part) === 1) {
+                $path[$key] = $part[0];
+            } else {
+                $path[$key] = $part;
+            }
+        }
+
+        return $path;
+    }
+
+    /**
+     * @param $extension
+     * @param $base
+     * @return mixed
+     */
+    private function extendPath($base, $extension)
+    {
+        foreach ($extension as $key => $part) {
+            if (!isset($base[$key])) {
+                $base[$key] = [];
+            }
+            $base[$key][] = $part;
+        }
+
+        return $base;
     }
 
 }

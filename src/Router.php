@@ -57,7 +57,7 @@ class Router
     {
         $route = $this->routeForPath($path);
         if ($route === null) {
-            throw new RouteNotFoundException();
+            throw new RouteNotFoundException($path);
         }
 
         $combined = DataCombiner::combine($route->getCallback()->call($route, $path));

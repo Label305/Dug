@@ -130,8 +130,7 @@ class ReferenceResolver
             } elseif ($item instanceof Data) {
                 $data[$key] = $this->mergeDataForReferences($references, $item->getValue(), $fetched);
             } elseif ($item instanceOf Reference) {
-                $result = $this->findDataForReference($item, $fetched);
-                $data[$key] = $item instanceof ReferenceToSingle && !empty($result->getValue()) ? $result->getValue() : $result;
+                $data[$key] = $this->findDataForReference($item, $fetched);
             }
         }
 

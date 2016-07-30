@@ -1,10 +1,11 @@
 <?php
 
 
-namespace Tests;
+namespace Tests\Business;
 
 
 use HWai\Objects\Route;
+use Tests\TestCase;
 
 class RouteTest extends TestCase
 {

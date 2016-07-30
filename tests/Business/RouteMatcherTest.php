@@ -1,11 +1,12 @@
 <?php
 
 
-namespace Tests;
+namespace Tests\Business;
 
 
 use HWai\Business\RouteMatcher;
 use HWai\Objects\Route;
+use Tests\TestCase;
 
 class RouteMatcherTest extends TestCase
 {

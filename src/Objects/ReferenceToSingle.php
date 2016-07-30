@@ -1,7 +1,7 @@
 <?php
 
 
-namespace HWai;
+namespace HWai\Objects;
 
 
 class ReferenceToSingle extends Reference

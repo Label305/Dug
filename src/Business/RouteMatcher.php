@@ -1,8 +1,10 @@
 <?php
 
 
-namespace HWai;
+namespace HWai\Business;
 
+
+use HWai\Objects\Route;
 
 class RouteMatcher
 {

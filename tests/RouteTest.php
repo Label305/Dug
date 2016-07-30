@@ -4,8 +4,7 @@
 namespace Tests;
 
 
-use HWai\PathSet;
-use HWai\Route;
+use HWai\Objects\Route;
 
 class RouteTest extends TestCase
 {
@@ -17,11 +16,11 @@ class RouteTest extends TestCase
             'categories'
         ];
 
-        $callback = function (PathSet $pathSet) {
+        $callback = function ($pathSet) {
 
         };
 
-        $otherCallback = function (PathSet $pathSet) {
+        $otherCallback = function ($pathSet) {
 
         };
 

@@ -1,8 +1,11 @@
 <?php
 
 
-namespace HWai;
+namespace HWai\Business;
 
+
+use HWai\Objects\Data;
+use HWai\Objects\Reference;
 
 class DataCombiner
 {

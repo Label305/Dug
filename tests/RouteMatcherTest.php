@@ -4,8 +4,8 @@
 namespace Tests;
 
 
-use HWai\Route;
-use HWai\RouteMatcher;
+use HWai\Business\RouteMatcher;
+use HWai\Objects\Route;
 
 class RouteMatcherTest extends TestCase
 {

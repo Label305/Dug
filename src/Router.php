@@ -3,8 +3,12 @@
 
 namespace HWai;
 
-
+use HWai\Business\DataCombiner;
+use HWai\Business\ReferenceResolver;
+use HWai\Business\RouteMatcher;
 use HWai\Exceptions\RouteNotFoundException;
+use HWai\Objects\Data;
+use HWai\Objects\Route;
 
 class Router
 {
@@ -49,7 +53,7 @@ class Router
         }
 
         $combined = DataCombiner::combine($route->getCallback()->call($route, $path));
-        
+
         return (new ReferenceResolver($this))->process($combined);
     }
 

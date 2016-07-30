@@ -1,8 +1,13 @@
 <?php
 
 
-namespace HWai;
+namespace HWai\Business;
 
+
+use HWai\Objects\Data;
+use HWai\Objects\Reference;
+use HWai\Objects\ReferenceToSingle;
+use HWai\Router;
 
 class ReferenceResolver
 {

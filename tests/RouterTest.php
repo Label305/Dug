@@ -4,11 +4,11 @@
 namespace Tests;
 
 
-use HWai\Data;
 use HWai\Exceptions\RouteNotFoundException;
-use HWai\Reference;
-use HWai\ReferenceToSingle;
-use HWai\Route;
+use HWai\Objects\Data;
+use HWai\Objects\Reference;
+use HWai\Objects\ReferenceToSingle;
+use HWai\Objects\Route;
 use HWai\Router;
 use Tests\Helpers\Bag;
 

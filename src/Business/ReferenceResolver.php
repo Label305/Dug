@@ -145,7 +145,7 @@ class ReferenceResolver
     private function findDataForReference(Reference $reference, array $fetched)
     {
         foreach ($fetched as $item) {
-            $path = $item->getParts();
+            $path = $item->getPath();
             if (count($path) == count($reference->getPath())) {
                 $isSame = true;
                 for ($i = 0; $i < count($path) && $isSame; $i++) {

@@ -5,7 +5,7 @@ namespace HWai\Business;
 
 
 use HWai\Objects\Data;
-use HWai\Objects\Reference;
+use HWai\Objects\PathProvider;
 
 class DataCombiner
 {
@@ -21,35 +21,48 @@ class DataCombiner
         $result = [];
 
         foreach ($data as $item) {
-            $hash = null;
-            if ($item instanceof Data) {
-                $hash = self::hashForRoute($item->getParts());
-            } elseif ($item instanceof Reference) {
-                $hash = self::hashForRoute($item->getPath());
+            $hash = self::toHash($item);
+            if ($hash === null) {
+                continue;
+            }
+            if (!isset($result[$hash])) {
+                $result[$hash] = Data::build($item->getPath(), []);
             }
 
-            if ($hash !== null) {
-                if (isset($result[$hash])) {
-                    $value = $result[$hash]->getValue();
-                    $value = array_merge($value, $item->getValue());
-                    $result[$hash]->setValue($value);
-                } else {
-                    $result[$hash] = $item;
-                }
-            }
+            $value = $result[$hash]->getValue();
+            $value = self::merge($item, $value);
+            $result[$hash]->setValue($value);
         }
 
         return array_values($result);
     }
 
     /**
-     * @param array $parts
+     * @param PathProvider $provider
      * @return string
      */
-    private static function hashForRoute(array $parts)
+    private static function toHash(PathProvider $provider)
     {
         return md5(implode('|', array_map(function ($el) {
             return $el;
-        }, $parts)));
+        }, $provider->getPath())));
     }
+
+    /**
+     * @param Data  $item
+     * @param array $target
+     * @return array
+     */
+    private static function merge(Data $item, $target)
+    {
+        $value = $item->getValue();
+        if (is_array($value)) {
+            $target = array_merge($target, $value);
+        } else {
+            $target[] = $value;
+        }
+
+        return $target;
+    }
+
 }

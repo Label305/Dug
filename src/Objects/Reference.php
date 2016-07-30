@@ -4,7 +4,7 @@
 namespace HWai\Objects;
 
 
-class Reference
+class Reference implements PathProvider
 {
     /**
      * @var array
@@ -34,5 +34,5 @@ class Reference
     {
         $this->path = $path;
     }
-    
+
 }

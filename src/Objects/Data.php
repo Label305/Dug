@@ -4,13 +4,13 @@
 namespace HWai\Objects;
 
 
-class Data
+class Data implements PathProvider
 {
 
     /**
      * @var array
      */
-    private $parts;
+    private $path;
 
     /**
      * @var array
@@ -25,7 +25,7 @@ class Data
     public static function build($parts, $value)
     {
         $data = new Data();
-        $data->setParts($parts);
+        $data->setPath($parts);
         $data->setValue($value);
 
         return $data;
@@ -34,31 +34,31 @@ class Data
     /**
      * @return array
      */
-    public function getParts(): array
+    public function getPath(): array
     {
-        return $this->parts;
+        return $this->path;
     }
 
     /**
-     * @param array $parts
+     * @param array $path
      */
-    public function setParts(array $parts)
+    public function setPath(array $path)
     {
-        $this->parts = $parts;
+        $this->path = $path;
     }
 
     /**
-     * @return array
+     * @return array|Reference
      */
-    public function getValue(): array
+    public function getValue()
     {
         return $this->value;
     }
 
     /**
-     * @param array $value
+     * @param array|Reference $value
      */
-    public function setValue(array $value)
+    public function setValue($value)
     {
         $this->value = $value;
     }

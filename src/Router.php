@@ -21,40 +21,9 @@ class Router
     /**
      * @param Route $route
      */
-    public function addRoute(Route $route)
+    public function register(Route $route)
     {
         $this->routes[] = $route;
-    }
-
-    /**
-     * @param array $path
-     * @return Route|null
-     */
-    public function routeForPath(array $path)
-    {
-        foreach ($this->routes as $route) {
-            if (RouteMatcher::matches($route, $path)) {
-                return $route;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param array $path
-     * @return Data[]
-     */
-    public function data(array $path)
-    {
-        $route = $this->routeForPath($path);
-        if ($route === null) {
-            throw new RouteNotFoundException();
-        }
-
-        $combined = DataCombiner::combine($route->getCallback()->call($route, $path));
-
-        return (new ReferenceResolver($this))->process($combined);
     }
 
     /**
@@ -77,6 +46,38 @@ class Router
         $result = $this->fetch($path);
 
         return isset($result[0]) ? $result[0] : null;
+    }
+
+
+    /**
+     * @param array $path
+     * @return Data[]
+     */
+    public function data(array $path)
+    {
+        $route = $this->routeForPath($path);
+        if ($route === null) {
+            throw new RouteNotFoundException();
+        }
+
+        $combined = DataCombiner::combine($route->getCallback()->call($route, $path));
+
+        return (new ReferenceResolver($this))->process($combined);
+    }
+
+    /**
+     * @param array $path
+     * @return Route|null
+     */
+    public function routeForPath(array $path)
+    {
+        foreach ($this->routes as $route) {
+            if (RouteMatcher::matches($route, $path)) {
+                return $route;
+            }
+        }
+
+        return null;
     }
 
     /**

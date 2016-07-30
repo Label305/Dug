@@ -23,7 +23,7 @@ class RouterTest extends TestCase
             return [];
         });
 
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['categories']);
@@ -40,7 +40,7 @@ class RouterTest extends TestCase
             return [];
         });
 
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $exception = false;
@@ -66,13 +66,14 @@ class RouterTest extends TestCase
             return [];
         });
 
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $router->fetch(['categories']);
 
         /* Then */
         assertThat(count($bag->get('path')), is(1));
+        assertThat($bag->get('path')[0], is('categories'));
     }
 
     public function testSingleResult()
@@ -85,7 +86,7 @@ class RouterTest extends TestCase
             ];
         });
 
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['me']);
@@ -104,7 +105,7 @@ class RouterTest extends TestCase
             ];
         });
 
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetchSingle(['me']);
@@ -126,7 +127,7 @@ class RouterTest extends TestCase
             ];
         });
 
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['me']);
@@ -145,7 +146,7 @@ class RouterTest extends TestCase
                 Data::build(['users', 321], ['id' => 321, 'name' => 'Jisca'])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['users', [123, 321]]);
@@ -170,7 +171,7 @@ class RouterTest extends TestCase
                 Data::build(['users', 321], ['name' => 'Jisca'])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['users', [123, 321]]);
@@ -196,14 +197,14 @@ class RouterTest extends TestCase
                 Data::build(['petForUser', 321], ['name' => 'Loesje'])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
         $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], ['id' => 123, 'pet' => new ReferenceToSingle(['petForUser', 123])]),
                 Data::build(['users', 321], ['id' => 321, 'pet' => new ReferenceToSingle(['petForUser', 321])])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['users', [123, 321]]);
@@ -232,14 +233,14 @@ class RouterTest extends TestCase
                 Data::build(['pets', 2], ['name' => 'Loesje'])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
         $route = Route::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
             return [
-                new Reference(['pets', 1]),
-                new Reference(['pets', 2]),
+                Data::build(['users', 123, 'pets'], new Reference(['pets', 1])),
+                Data::build(['users', 123, 'pets'], new Reference(['pets', 2])),
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['users', [123], 'pets']);
@@ -261,14 +262,14 @@ class RouterTest extends TestCase
                 Data::build(['pets', 2], ['name' => 'Loesje'])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
         $route = Route::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
             return [
                 new Reference(['pets', 1]),
                 new Reference(['pets', 2]),
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
         $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], [
@@ -277,7 +278,7 @@ class RouterTest extends TestCase
                 ])
             ];
         });
-        $router->addRoute($route);
+        $router->register($route);
 
         /* When */
         $result = $router->fetch(['users', [123]]);

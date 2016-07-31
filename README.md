@@ -1,6 +1,8 @@
 HWai
 ====
 
+[![Build Status](https://travis-ci.org/Label305/HWai.svg?branch=master)](https://travis-ci.org/Label305/HWai)
+
 For combining different data sources to create webservice responses
 efficiently and manageable.
 

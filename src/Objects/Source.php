@@ -4,6 +4,9 @@
 namespace Dug\Objects;
 
 
+use Dug\Interfaces\ClassInitializer;
+use Dug\Interfaces\DataProvider;
+
 class Source
 {
 
@@ -18,15 +21,25 @@ class Source
     private $callback;
 
     /**
-     * @param array    $array
-     * @param \Closure $callback
+     * @var string
+     */
+    private $dataProviderClassName;
+
+    /**
+     * @param array           $array
+     * @param \Closure|string $callback
      * @return Source
      */
-    public static function build(array $array, \Closure $callback):Source
+    public static function build(array $array, $callback):Source
     {
         $source = new Source();
         $source->setParts($array);
-        $source->setCallback($callback);
+
+        if (is_string($callback)) {
+            $source->setDataProviderClassName($callback);
+        } else {
+            $source->setCallback($callback);
+        }
 
         return $source;
     }
@@ -40,6 +53,18 @@ class Source
     }
 
     /**
+     * @return DataProvider
+     */
+    public function getDataProviderInstance(ClassInitializer $injectionHandler):DataProvider
+    {
+        if ($this->callback instanceof \Closure) {
+            return new ClosureDataProvider($this->callback);
+        }
+
+        return $injectionHandler->instantiate($this->dataProviderClassName);
+    }
+
+    /**
      * @param \string[] $parts
      */
     public function setParts(array $parts)
@@ -48,19 +73,19 @@ class Source
     }
 
     /**
-     * @return \Closure
-     */
-    public function getCallback(): \Closure
-    {
-        return $this->callback;
-    }
-
-    /**
      * @param \Closure $callback
      */
     public function setCallback(\Closure $callback)
     {
         $this->callback = $callback;
+    }
+
+    /**
+     * @param string $dataProviderClassName
+     */
+    public function setDataProviderClassName(string $dataProviderClassName)
+    {
+        $this->dataProviderClassName = $dataProviderClassName;
     }
 
     /**

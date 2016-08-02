@@ -3,6 +3,8 @@
 
 namespace Dug;
 
+use Dug\Business\BasicClassInitializer;
+use Dug\Interfaces\ClassInitializer;
 use Dug\Business\DataCombiner;
 use Dug\Business\ReferenceResolver;
 use Dug\Business\RouteMatcher;
@@ -17,6 +19,19 @@ class Dug
      * @var Source[]
      */
     private $sources = [];
+
+    /**
+     * @var ClassInitializer
+     */
+    private $classInitializer;
+
+    /**
+     * Dug constructor.
+     */
+    public function __construct()
+    {
+        $this->classInitializer = new BasicClassInitializer();
+    }
 
     /**
      * @param Source $source
@@ -48,6 +63,13 @@ class Dug
         return isset($result[0]) ? $result[0] : null;
     }
 
+    /**
+     * @param ClassInitializer $classInitializer
+     */
+    public function setClassInitializer(ClassInitializer $classInitializer)
+    {
+        $this->classInitializer = $classInitializer;
+    }
 
     /**
      * @param array $path
@@ -60,7 +82,7 @@ class Dug
             throw new RouteNotFoundException($path);
         }
 
-        $combined = DataCombiner::combine($source->getDataProviderInstance()->handle($path));
+        $combined = DataCombiner::combine($source->getDataProviderInstance($this->classInitializer)->handle($path));
 
         return (new ReferenceResolver($this))->process($combined);
     }

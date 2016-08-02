@@ -191,6 +191,42 @@ source in case you fetched multiple users, and possibly multiple companies.
 Meaning it will make only one round trip to your `['companies', '/[0-9]+/']`
 source!
 
+Dependency Injection
+--------------------
+
+When your api grows you don't want everything done within closures, for this
+we have `DataProvider` classes. For example:
+
+```
+class UserProvider implements DataProvider {
+    public function handle(array $path):array
+        //Your magic
+    }
+}
+```
+
+Which you can register as a source by their classname:
+
+```
+Source::build(['users', '/[0-9]+/'], UserProvider::class);
+```
+
+By default Dug will simply create an instance of this class, however
+since you might have a dependency injection framework lying around you
+might want to use that to initiate classes and inject stuff into your
+constructor. This can be done using a `ClassInitializer`:
+
+```
+class LaravelClassInitializer implements ClassInitializer {
+    public function inititialize(string $className) {
+        return app($className); 
+    }
+}
+
+$dug = new Dug();
+$dug->setClassInitializer(new LaravelClassInitializer());
+```
+
 License
 ---------
 Copyright 2016 Label305 B.V.

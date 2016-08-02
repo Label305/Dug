@@ -345,6 +345,6 @@ class DugTest extends TestCase
 
         /* Then */
         assertThat($result[0]['source'], 'UserProvider');
-
     }
+    
 }

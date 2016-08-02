@@ -4,8 +4,8 @@
 namespace Dug\Objects;
 
 
+use Dug\Interfaces\ClassInitializer;
 use Dug\Interfaces\DataProvider;
-use Dug\Objects\ClosureDataProvider;
 
 class Source
 {
@@ -23,7 +23,7 @@ class Source
     /**
      * @var string
      */
-    private $dataProviderClass;
+    private $dataProviderClassName;
 
     /**
      * @param array           $array
@@ -36,7 +36,7 @@ class Source
         $source->setParts($array);
 
         if (is_string($callback)) {
-            $source->setDataProviderClass($callback);
+            $source->setDataProviderClassName($callback);
         } else {
             $source->setCallback($callback);
         }
@@ -55,13 +55,13 @@ class Source
     /**
      * @return DataProvider
      */
-    public function getDataProviderInstance()
+    public function getDataProviderInstance(ClassInitializer $injectionHandler):DataProvider
     {
         if ($this->callback instanceof \Closure) {
             return new ClosureDataProvider($this->callback);
         }
 
-        return new $this->dataProviderClass;
+        return $injectionHandler->instantiate($this->dataProviderClassName);
     }
 
     /**
@@ -81,11 +81,11 @@ class Source
     }
 
     /**
-     * @param string $dataProviderClass
+     * @param string $dataProviderClassName
      */
-    public function setDataProviderClass(string $dataProviderClass)
+    public function setDataProviderClassName(string $dataProviderClassName)
     {
-        $this->dataProviderClass = $dataProviderClass;
+        $this->dataProviderClassName = $dataProviderClassName;
     }
 
     /**

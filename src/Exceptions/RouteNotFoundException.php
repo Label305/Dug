@@ -1,10 +1,10 @@
 <?php
 
 
-namespace HWai\Exceptions;
+namespace Dug\Exceptions;
 
 
-class RouteNotFoundException extends HWaiException
+class RouteNotFoundException extends DugException
 {
 
 

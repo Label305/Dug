@@ -1,28 +1,28 @@
 <?php
 
 
-namespace HWai\Business;
+namespace Dug\Business;
 
 
-use HWai\Exceptions\RouteNotFoundException;
-use HWai\Objects\Data;
-use HWai\Objects\Reference;
-use HWai\Objects\ReferenceToSingle;
-use HWai\Router;
+use Dug\Exceptions\RouteNotFoundException;
+use Dug\Objects\Data;
+use Dug\Objects\Reference;
+use Dug\Objects\ReferenceToSingle;
+use Dug\Dug;
 
 class ReferenceResolver
 {
     /**
-     * @var Router
+     * @var Dug
      */
-    private $router;
+    private $dug;
 
     /**
      * ReferenceResolver constructor.
      */
-    public function __construct(Router $router)
+    public function __construct(Dug $dug)
     {
-        $this->router = $router;
+        $this->dug = $dug;
     }
 
     /**
@@ -36,7 +36,7 @@ class ReferenceResolver
 
         foreach ($grouped as $group) {
             $combinedPath = $this->getPathForGroup($group);
-            $dataForGroup = $this->router->data($combinedPath);
+            $dataForGroup = $this->dug->data($combinedPath);
             $data = $this->substitueReferences($data, $dataForGroup);
         }
 
@@ -54,7 +54,7 @@ class ReferenceResolver
                 $value[$key] = $this->fetch($item);
             }
         } elseif ($value instanceof Reference) {
-            $value = $this->router->data($value->getPath());
+            $value = $this->dug->data($value->getPath());
         }
 
         return $value;
@@ -88,17 +88,17 @@ class ReferenceResolver
     {
         $groups = [];
         foreach ($references as $reference) {
-            $route = $this->router->routeForPath($reference->getPath());
+            $source = $this->dug->sourceForPath($reference->getPath());
 
-            if ($route === null) {
+            if ($source === null) {
                 throw new RouteNotFoundException($reference->getPath());
             }
 
-            if (!isset($groups[$route->toString()])) {
-                $groups[$route->toString()] = [];
+            if (!isset($groups[$source->toString()])) {
+                $groups[$source->toString()] = [];
             }
 
-            $groups[$route->toString()][] = $reference;
+            $groups[$source->toString()][] = $reference;
         }
 
         return array_values($groups);

@@ -1,7 +1,7 @@
-HWai
+Dug
 ====
 
-[![Build Status](https://travis-ci.org/Label305/HWai.svg?branch=master)](https://travis-ci.org/Label305/HWai)
+[![Build Status](https://travis-ci.org/Label305/Dug.svg?branch=master)](https://travis-ci.org/Label305/Dug)
 
 For combining different data sources to create webservice responses
 efficiently and manageable.
@@ -26,26 +26,26 @@ when you want to include a `user` object inside of another object, you
 have to make sure these fields are included to be consistent.
 
 While your api grows it is harder to see how every object is composed,
-this is where HWai comes into play.
+this is where Dug comes into play.
 
-HWai allows you to point to routes providing certain data, each of these
-routes can refer to one another and compose their data.
+Dug allows you to point to sources providing certain data, each of these
+sources can refer to one another and compose their data.
 
 Basic usage
 -----------
 
-First of all we setup a router
+First of all we setup a dug
 
 ```
-$router = new Router();
+$dug = new Dug();
 ```
 
-Then register your first data fetching route, which will fetch a bunch
+Then register your first data fetching source, which will fetch a bunch
 of users from the database. Note that `$path[1]` contains an array with results
 that matched `/[0-9]+/` so you can combine the query.
 
 ```
-$route = Route::build(['users', '/[0-9]+/'], function($path) {
+$source = Source::build(['users', '/[0-9]+/'], function($path) {
     $users = User::whereIn('id', $path[1])->get();
     
     $result = [];
@@ -63,10 +63,10 @@ $route = Route::build(['users', '/[0-9]+/'], function($path) {
 });
 ```
 
-To fetch data you can request data from a route:
+To fetch data you can request data from a source:
 
 ```
-$router->fetch(['users', [1,2]]);
+$dug->fetch(['users', [1,2]]);
 ```
 
 Which will result in the array:
@@ -90,7 +90,7 @@ Composing
 Let's take the example from Basic usage but in this case we add the unread count
 
 ```
-$route = Route::build(['users', '/[0-9]+/'], function($path) {
+$source = Source::build(['users', '/[0-9]+/'], function($path) {
     $users = User::whereIn('id', $path[1])->get();
     
     $result = [];
@@ -100,6 +100,8 @@ $route = Route::build(['users', '/[0-9]+/'], function($path) {
             [
                'id' => $user->getId(),
                'name' => $user->getName()
+           ]
+       );
     }
     
     $unreadCounts = Counters::whereIn('user_id', $path[1])->get();
@@ -116,9 +118,9 @@ $route = Route::build(['users', '/[0-9]+/'], function($path) {
 });
 ```
 
-Since the first argument of `Data::build` (the route) will be the same
+Since the first argument of `Data::build` (the source) will be the same
 for fetching user data, as well as for fetching the unread counts; e.g. 
-`['users', 1]`. HWai knows it can combine the results of those two.
+`['users', 1]`. Dug knows it can combine the results of those two.
 
 ```
 [
@@ -161,7 +163,7 @@ in your api, but you want to keep them in sync between the `companies/1`
 and `users/1` endpoint. This is where references come in.
 
 ```
-$route = Route::build(['users', '/[0-9]+/'], function($path) {
+$source = Source::build(['users', '/[0-9]+/'], function($path) {
     $users = User::whereIn('id', $path[1])->get();
     
     $result = [];
@@ -179,15 +181,15 @@ $route = Route::build(['users', '/[0-9]+/'], function($path) {
 });
 ```
 
-This assumes you have registered another route `['companies', '/[0-9]+/']`
-which will return companies. HWai will resolve the reference by fetching
-data from this route and merge it with the user object.
+This assumes you have registered another source `['companies', '/[0-9]+/']`
+which will return companies. Dug will resolve the reference by fetching
+data from this source and merge it with the user object.
 
-Since HWai first combines al data it will also combine all references
+Since Dug first combines al data it will also combine all references
 to check if it can combine calls to your `['companies', '/[0-9]+/']`
-route in case you fetched multiple users, and possibly multiple companies.
+source in case you fetched multiple users, and possibly multiple companies.
 Meaning it will make only one round trip to your `['companies', '/[0-9]+/']`
-route!
+source!
 
 License
 ---------

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace HWai\Exceptions;
+namespace Dug\Exceptions;
 
 
-class HWaiException extends \Exception
+class DugException extends \Exception
 {
 
 }

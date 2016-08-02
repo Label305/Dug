@@ -1,12 +1,12 @@
 <?php
 
 
-namespace HWai\Business;
+namespace Dug\Business;
 
 
-use HWai\Objects\Data;
-use HWai\Objects\PathProvider;
-use HWai\Objects\Reference;
+use Dug\Objects\Data;
+use Dug\Objects\PathProvider;
+use Dug\Objects\Reference;
 
 class DataCombiner
 {

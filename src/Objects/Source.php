@@ -1,10 +1,10 @@
 <?php
 
 
-namespace HWai\Objects;
+namespace Dug\Objects;
 
 
-class Route
+class Source
 {
 
     /**
@@ -20,15 +20,15 @@ class Route
     /**
      * @param array    $array
      * @param \Closure $callback
-     * @return Route
+     * @return Source
      */
-    public static function build(array $array, \Closure $callback):Route
+    public static function build(array $array, \Closure $callback):Source
     {
-        $route = new Route();
-        $route->setParts($array);
-        $route->setCallback($callback);
+        $source = new Source();
+        $source->setParts($array);
+        $source->setCallback($callback);
 
-        return $route;
+        return $source;
     }
 
     /**

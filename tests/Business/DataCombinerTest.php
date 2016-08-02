@@ -4,9 +4,9 @@
 namespace Tests\Business;
 
 
-use HWai\Business\DataCombiner;
-use HWai\Objects\Data;
-use HWai\Objects\Reference;
+use Dug\Business\DataCombiner;
+use Dug\Objects\Data;
+use Dug\Objects\Reference;
 use Tests\TestCase;
 
 class DataCombinerTest extends TestCase

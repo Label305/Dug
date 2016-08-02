@@ -1,6 +1,7 @@
 {
   "name": "label305/dug",
   "description": "Adding elegance to defining your webservices",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Joris Blaak",

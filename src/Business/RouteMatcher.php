@@ -1,17 +1,17 @@
 <?php
 
 
-namespace HWai\Business;
+namespace Dug\Business;
 
 
-use HWai\Objects\Route;
+use Dug\Objects\Source;
 
 class RouteMatcher
 {
 
-    public static function matches(Route $route, array $request)
+    public static function matches(Source $source, array $request)
     {
-        $definition = $route->getParts();
+        $definition = $source->getParts();
         if (count($definition) != count($request)) {
             return false;
         }

@@ -1,5 +1,5 @@
 {
-  "name": "label305/hwai",
+  "name": "label305/dug",
   "description": "Adding elegance to defining your webservices",
   "authors": [
     {
@@ -9,7 +9,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "HWai\\": "src/",
+      "Dug\\": "src/",
       "Tests\\": "tests/"
     }
   },

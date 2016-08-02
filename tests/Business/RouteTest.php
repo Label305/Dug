@@ -4,7 +4,7 @@
 namespace Tests\Business;
 
 
-use HWai\Objects\Route;
+use Dug\Objects\Source;
 use Tests\TestCase;
 
 class RouteTest extends TestCase
@@ -26,12 +26,12 @@ class RouteTest extends TestCase
         };
 
         /* When */
-        $route = Route::build($parts, $callback);
+        $source = Source::build($parts, $callback);
 
         /* Then */
-        assertThat($route->getParts(), equalTo($parts));
-        assertThat($route->getCallback(), equalTo($callback));
-        assertThat($route->getCallback(), not($otherCallback));
+        assertThat($source->getParts(), equalTo($parts));
+        assertThat($source->getCallback(), equalTo($callback));
+        assertThat($source->getCallback(), not($otherCallback));
     }
 
 }

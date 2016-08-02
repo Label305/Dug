@@ -1,7 +1,7 @@
 <?php
 
 
-namespace HWai\Objects;
+namespace Dug\Objects;
 
 
 interface PathProvider

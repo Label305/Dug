@@ -4,12 +4,12 @@
 namespace Tests\Business;
 
 
-use HWai\Business\ReferenceResolver;
-use HWai\Objects\Data;
-use HWai\Objects\Reference;
-use HWai\Objects\ReferenceToSingle;
-use HWai\Objects\Route;
-use HWai\Router;
+use Dug\Business\ReferenceResolver;
+use Dug\Objects\Data;
+use Dug\Objects\Reference;
+use Dug\Objects\ReferenceToSingle;
+use Dug\Objects\Source;
+use Dug\Dug;
 use Tests\TestCase;
 
 class ReferenceResolverTest extends TestCase
@@ -18,7 +18,7 @@ class ReferenceResolverTest extends TestCase
     public function testNoReference()
     {
         /* Given */
-        $router = \Mockery::mock(Router::class);
+        $dug = \Mockery::mock(Dug::class);
 
         $data = Data::build(['foo', 1], ['foo' => 'bar']);
         $input = [
@@ -26,7 +26,7 @@ class ReferenceResolverTest extends TestCase
         ];
 
         /* When */
-        $referenceResolver = new ReferenceResolver($router);
+        $referenceResolver = new ReferenceResolver($dug);
         $result = $referenceResolver->process($input);
 
         /* Then */
@@ -37,20 +37,20 @@ class ReferenceResolverTest extends TestCase
     public function testSingleReference()
     {
         /* Given */
-        $router = \Mockery::mock(Router::class);
-        $route = Route::build(['users', '/[0-9]+/'], function () {
+        $dug = \Mockery::mock(Dug::class);
+        $source = Source::build(['users', '/[0-9]+/'], function () {
         });
-        $router->shouldReceive('routeForPath')->once()->andReturn($route);
+        $dug->shouldReceive('sourceForPath')->once()->andReturn($source);
 
         $user = Data::build(['users', 1], ['id' => 1, 'name' => 'Joris']);
-        $router->shouldReceive('data')->once()->andReturn([$user]);
+        $dug->shouldReceive('data')->once()->andReturn([$user]);
 
         $input = [
             Data::build(['foo', 1], ['user' => new Reference(['users', 1])])
         ];
 
         /* When */
-        $referenceResolver = new ReferenceResolver($router);
+        $referenceResolver = new ReferenceResolver($dug);
         $result = $referenceResolver->process($input);
 
         /* Then */
@@ -61,20 +61,20 @@ class ReferenceResolverTest extends TestCase
     public function testSingleReferenceToSingle()
     {
         /* Given */
-        $router = \Mockery::mock(Router::class);
-        $route = Route::build(['users', '/[0-9]+/'], function () {
+        $dug = \Mockery::mock(Dug::class);
+        $source = Source::build(['users', '/[0-9]+/'], function () {
         });
-        $router->shouldReceive('routeForPath')->once()->andReturn($route);
+        $dug->shouldReceive('sourceForPath')->once()->andReturn($source);
 
         $user = Data::build(['users', 1], ['id' => 1, 'name' => 'Joris']);
-        $router->shouldReceive('data')->once()->andReturn([$user]);
+        $dug->shouldReceive('data')->once()->andReturn([$user]);
 
         $input = [
             Data::build(['foo', 1], ['user' => new ReferenceToSingle(['users', 1])])
         ];
 
         /* When */
-        $referenceResolver = new ReferenceResolver($router);
+        $referenceResolver = new ReferenceResolver($dug);
         $result = $referenceResolver->process($input);
 
         /* Then */
@@ -85,14 +85,14 @@ class ReferenceResolverTest extends TestCase
     public function testMultipleReferencesShouldCallOnce()
     {
         /* Given */
-        $router = \Mockery::mock(Router::class);
-        $route = Route::build(['users', '/[0-9]+/'], function () {
+        $dug = \Mockery::mock(Dug::class);
+        $source = Source::build(['users', '/[0-9]+/'], function () {
         });
-        $router->shouldReceive('routeForPath')->once()->andReturn($route);
+        $dug->shouldReceive('sourceForPath')->once()->andReturn($source);
 
         $user1 = Data::build(['users', 1], ['id' => 1, 'name' => 'Joris']);
         $user2 = Data::build(['users', 2], ['id' => 2, 'name' => 'Jisca']);
-        $router->shouldReceive('data')->once()->andReturn([$user1, $user2]);
+        $dug->shouldReceive('data')->once()->andReturn([$user1, $user2]);
 
         $input = [
             Data::build(['foo', 1], ['user' => new Reference(['users', 1])]),
@@ -100,7 +100,7 @@ class ReferenceResolverTest extends TestCase
         ];
 
         /* When */
-        $referenceResolver = new ReferenceResolver($router);
+        $referenceResolver = new ReferenceResolver($dug);
         $result = $referenceResolver->process($input);
 
         /* Then */

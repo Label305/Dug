@@ -1,29 +1,29 @@
 <?php
 
 
-namespace HWai;
+namespace Dug;
 
-use HWai\Business\DataCombiner;
-use HWai\Business\ReferenceResolver;
-use HWai\Business\RouteMatcher;
-use HWai\Exceptions\RouteNotFoundException;
-use HWai\Objects\Data;
-use HWai\Objects\Route;
+use Dug\Business\DataCombiner;
+use Dug\Business\ReferenceResolver;
+use Dug\Business\RouteMatcher;
+use Dug\Exceptions\RouteNotFoundException;
+use Dug\Objects\Data;
+use Dug\Objects\Source;
 
-class Router
+class Dug
 {
 
     /**
-     * @var Route[]
+     * @var Source[]
      */
-    private $routes = [];
+    private $sources = [];
 
     /**
-     * @param Route $route
+     * @param Source $source
      */
-    public function register(Route $route)
+    public function register(Source $source)
     {
-        $this->routes[] = $route;
+        $this->sources[] = $source;
     }
 
     /**
@@ -55,25 +55,25 @@ class Router
      */
     public function data(array $path)
     {
-        $route = $this->routeForPath($path);
-        if ($route === null) {
+        $source = $this->sourceForPath($path);
+        if ($source === null) {
             throw new RouteNotFoundException($path);
         }
 
-        $combined = DataCombiner::combine($route->getCallback()->call($route, $path));
+        $combined = DataCombiner::combine($source->getCallback()->call($source, $path));
 
         return (new ReferenceResolver($this))->process($combined);
     }
 
     /**
      * @param array $path
-     * @return Route|null
+     * @return Source|null
      */
-    public function routeForPath(array $path)
+    public function sourceForPath(array $path)
     {
-        foreach ($this->routes as $route) {
-            if (RouteMatcher::matches($route, $path)) {
-                return $route;
+        foreach ($this->sources as $source) {
+            if (RouteMatcher::matches($source, $path)) {
+                return $source;
             }
         }
 

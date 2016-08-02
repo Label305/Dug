@@ -4,29 +4,29 @@
 namespace Tests;
 
 
-use HWai\Exceptions\RouteNotFoundException;
-use HWai\Objects\Data;
-use HWai\Objects\Reference;
-use HWai\Objects\ReferenceToSingle;
-use HWai\Objects\Route;
-use HWai\Router;
+use Dug\Exceptions\RouteNotFoundException;
+use Dug\Objects\Data;
+use Dug\Objects\Reference;
+use Dug\Objects\ReferenceToSingle;
+use Dug\Objects\Source;
+use Dug\Dug;
 use Tests\Helpers\Bag;
 
-class RouterTest extends TestCase
+class DugTest extends TestCase
 {
 
     public function testEmptyResult()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['categories'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['categories'], function (array $path) {
             return [];
         });
 
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['categories']);
+        $result = $dug->fetch(['categories']);
 
         /* Then */
         assertThat($result, is([]));
@@ -35,17 +35,17 @@ class RouterTest extends TestCase
     public function missingRoute()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['categories'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['categories'], function (array $path) {
             return [];
         });
 
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
         $exception = false;
         try {
-            $router->fetch(['tracks']);
+            $dug->fetch(['tracks']);
         } catch (RouteNotFoundException $e) {
             $exception = true;
         }
@@ -58,18 +58,18 @@ class RouterTest extends TestCase
     public function testCalledWithCorrectPath()
     {
         /* Given */
-        $router = new Router();
+        $dug = new Dug();
         $bag = new Bag();
-        $route = Route::build(['categories'], function (array $path) use ($bag) {
+        $source = Source::build(['categories'], function (array $path) use ($bag) {
             $bag->set('path', $path);
 
             return [];
         });
 
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $router->fetch(['categories']);
+        $dug->fetch(['categories']);
 
         /* Then */
         assertThat(count($bag->get('path')), is(1));
@@ -79,17 +79,17 @@ class RouterTest extends TestCase
     public function testSingleResult()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['me'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['me'], function (array $path) {
             return [
                 Data::build(['me'], ['id' => 123])
             ];
         });
 
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['me']);
+        $result = $dug->fetch(['me']);
 
         /* Then */
         assertThat($result, is([['id' => 123]]));
@@ -98,17 +98,17 @@ class RouterTest extends TestCase
     public function testSingleFetchSingleResult()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['me'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['me'], function (array $path) {
             return [
                 Data::build(['me'], ['id' => 123])
             ];
         });
 
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetchSingle(['me']);
+        $result = $dug->fetchSingle(['me']);
 
         /* Then */
         assertThat($result, is([
@@ -119,18 +119,18 @@ class RouterTest extends TestCase
     public function testSingleCombinedResult()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['me'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['me'], function (array $path) {
             return [
                 Data::build(['me'], ['id' => 123]),
                 Data::build(['me'], ['name' => 'Joris'])
             ];
         });
 
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['me']);
+        $result = $dug->fetch(['me']);
 
         /* Then */
         assertThat($result, is([['id' => 123, 'name' => 'Joris']]));
@@ -139,17 +139,17 @@ class RouterTest extends TestCase
     public function testMultipleResult()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], ['id' => 123, 'name' => 'Joris']),
                 Data::build(['users', 321], ['id' => 321, 'name' => 'Jisca'])
             ];
         });
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['users', [123, 321]]);
+        $result = $dug->fetch(['users', [123, 321]]);
 
         /* Then */
         assertThat($result, is([
@@ -162,8 +162,8 @@ class RouterTest extends TestCase
     public function testMultipleCombinedResult()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], ['id' => 123]),
                 Data::build(['users', 321], ['id' => 321]),
@@ -171,10 +171,10 @@ class RouterTest extends TestCase
                 Data::build(['users', 321], ['name' => 'Jisca'])
             ];
         });
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['users', [123, 321]]);
+        $result = $dug->fetch(['users', [123, 321]]);
 
         /* Then */
         assertThat($result, is([
@@ -186,10 +186,10 @@ class RouterTest extends TestCase
     public function testReferenceToSingle()
     {
         /* Given */
-        $router = new Router();
+        $dug = new Dug();
         $bag = new Bag();
         $bag->set('count', 0);
-        $route = Route::build(['petForUser', '/[0-9]+/'], function (array $path) use ($bag) {
+        $source = Source::build(['petForUser', '/[0-9]+/'], function (array $path) use ($bag) {
             $bag->set('count', $bag->get('count') + 1);
 
             return [
@@ -197,17 +197,17 @@ class RouterTest extends TestCase
                 Data::build(['petForUser', 321], ['name' => 'Loesje'])
             ];
         });
-        $router->register($route);
-        $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
+        $dug->register($source);
+        $source = Source::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], ['id' => 123, 'pet' => new ReferenceToSingle(['petForUser', 123])]),
                 Data::build(['users', 321], ['id' => 321, 'pet' => new ReferenceToSingle(['petForUser', 321])])
             ];
         });
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['users', [123, 321]]);
+        $result = $dug->fetch(['users', [123, 321]]);
 
         /* Then */
         assertThat($result, is([
@@ -226,24 +226,24 @@ class RouterTest extends TestCase
     public function testReferenceList()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['pets', '/[0-9]+/'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['pets', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['pets', 1], ['name' => 'Fluffy']),
                 Data::build(['pets', 2], ['name' => 'Loesje'])
             ];
         });
-        $router->register($route);
-        $route = Route::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
+        $dug->register($source);
+        $source = Source::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
             return [
                 Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 1])),
                 Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 2])),
             ];
         });
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetchSingle(['users', [123], 'pets']);
+        $result = $dug->fetchSingle(['users', [123], 'pets']);
 
         /* Then */
         assertThat($result, is([
@@ -255,22 +255,22 @@ class RouterTest extends TestCase
     public function testReferenceListIntermediate()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['pets', '/[0-9]+/'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['pets', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['pets', 1], ['name' => 'Fluffy']),
                 Data::build(['pets', 2], ['name' => 'Loesje'])
             ];
         });
-        $router->register($route);
-        $route = Route::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
+        $dug->register($source);
+        $source = Source::build(['users', '/[0-9]+/', 'pets'], function (array $path) {
             return [
                 Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 1])),
                 Data::build(['users', 123, 'pets'], new ReferenceToSingle(['pets', 2])),
             ];
         });
-        $router->register($route);
-        $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
+        $dug->register($source);
+        $source = Source::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], [
                     'id' => 123,
@@ -278,10 +278,10 @@ class RouterTest extends TestCase
                 ])
             ];
         });
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['users', [123]]);
+        $result = $dug->fetch(['users', [123]]);
 
         /* Then */
         assertThat($result, is([
@@ -298,15 +298,15 @@ class RouterTest extends TestCase
     public function testReferenceListToMultiple()
     {
         /* Given */
-        $router = new Router();
-        $route = Route::build(['pets', '/[0-9]+/'], function (array $path) {
+        $dug = new Dug();
+        $source = Source::build(['pets', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['pets', 1], ['name' => 'Fluffy']),
                 Data::build(['pets', 2], ['name' => 'Loesje'])
             ];
         });
-        $router->register($route);
-        $route = Route::build(['users', '/[0-9]+/'], function (array $path) {
+        $dug->register($source);
+        $source = Source::build(['users', '/[0-9]+/'], function (array $path) {
             return [
                 Data::build(['users', 123], [
                     'id' => 123,
@@ -314,10 +314,10 @@ class RouterTest extends TestCase
                 ])
             ];
         });
-        $router->register($route);
+        $dug->register($source);
 
         /* When */
-        $result = $router->fetch(['users', [123]]);
+        $result = $dug->fetch(['users', [123]]);
 
         /* Then */
         assertThat($result, is([

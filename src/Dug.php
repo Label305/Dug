@@ -60,7 +60,7 @@ class Dug
             throw new RouteNotFoundException($path);
         }
 
-        $combined = DataCombiner::combine($source->getCallback()->call($source, $path));
+        $combined = DataCombiner::combine($source->getDataProviderInstance()->handle($path));
 
         return (new ReferenceResolver($this))->process($combined);
     }

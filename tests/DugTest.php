@@ -4,13 +4,14 @@
 namespace Tests;
 
 
+use Dug\Dug;
 use Dug\Exceptions\RouteNotFoundException;
 use Dug\Objects\Data;
 use Dug\Objects\Reference;
 use Dug\Objects\ReferenceToSingle;
 use Dug\Objects\Source;
-use Dug\Dug;
 use Tests\Helpers\Bag;
+use Tests\Helpers\UserProvider;
 
 class DugTest extends TestCase
 {
@@ -331,4 +332,19 @@ class DugTest extends TestCase
         ]));
     }
 
+    public function testInjectCallbackClass()
+    {
+        /* Given */
+        $dug = new Dug();
+
+        $source = Source::build(['users', '/[0-9]+/'], UserProvider::class);
+        $dug->register($source);
+
+        /* When */
+        $result = $dug->fetch(['users', 1]);
+
+        /* Then */
+        assertThat($result[0]['source'], 'UserProvider');
+
+    }
 }

@@ -4,11 +4,11 @@
 namespace Dug;
 
 use Dug\Business\BasicClassInitializer;
-use Dug\Interfaces\ClassInitializer;
 use Dug\Business\DataCombiner;
 use Dug\Business\ReferenceResolver;
 use Dug\Business\RouteMatcher;
 use Dug\Exceptions\RouteNotFoundException;
+use Dug\Interfaces\ClassInitializer;
 use Dug\Objects\Data;
 use Dug\Objects\Source;
 
@@ -48,7 +48,7 @@ class Dug
     public function fetch(array $path)
     {
         $data = $this->data($path);
-
+        
         return $this->dataToArray($data);
     }
 
@@ -82,9 +82,13 @@ class Dug
             throw new RouteNotFoundException($path);
         }
 
-        $combined = DataCombiner::combine($source->getDataProviderInstance($this->classInitializer)->handle($path));
+        $data = $source->getDataProviderInstance($this->classInitializer)->handle($path);
 
-        return (new ReferenceResolver($this))->process($combined);
+        $combined = DataCombiner::combine($data);
+
+        $processed = (new ReferenceResolver($this))->process($combined);
+
+        return DataCombiner::combine($processed);
     }
 
     /**

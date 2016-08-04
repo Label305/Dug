@@ -33,7 +33,7 @@ class DugTest extends TestCase
         assertThat($result, is([]));
     }
 
-    public function missingRoute()
+    public function testMissingRoute()
     {
         /* Given */
         $dug = new Dug();
@@ -332,6 +332,30 @@ class DugTest extends TestCase
         ]));
     }
 
+    public function testReferenceInRoot()
+    {
+        /* Given */
+        $dug = new Dug();
+        $source = Source::build(['pets', '/[0-9]+/'], function (array $path) {
+            return [
+                Data::build(['pets', 1], ['name' => 'Fluffy']),
+            ];
+        });
+        $dug->register($source);
+        $source = Source::build(['pet'], function (array $path) {
+            return [
+                Data::build(['pet'], new ReferenceToSingle(['pets', 1]))
+            ];
+        });
+        $dug->register($source);
+
+        /* When */
+        $result = $dug->fetchSingle(['pet']);
+
+        /* Then */
+        assertThat($result, is([['name' => 'Fluffy']]));
+    }
+
     public function testInjectCallbackClass()
     {
         /* Given */
@@ -346,5 +370,5 @@ class DugTest extends TestCase
         /* Then */
         assertThat($result[0]['source'], 'UserProvider');
     }
-    
+
 }

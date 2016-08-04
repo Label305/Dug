@@ -4,11 +4,11 @@
 namespace Dug\Business;
 
 
+use Dug\Dug;
 use Dug\Exceptions\RouteNotFoundException;
 use Dug\Objects\Data;
 use Dug\Objects\Reference;
 use Dug\Objects\ReferenceToSingle;
-use Dug\Dug;
 
 class ReferenceResolver
 {
@@ -37,7 +37,7 @@ class ReferenceResolver
         foreach ($grouped as $group) {
             $combinedPath = $this->getPathForGroup($group);
             $dataForGroup = $this->dug->data($combinedPath);
-            $data = $this->substitueReferences($data, $dataForGroup);
+            $data = $this->substituteReferences($data, $dataForGroup);
         }
 
         return $data;
@@ -122,18 +122,20 @@ class ReferenceResolver
      * @param array $substitutions
      * @return array
      */
-    private function substitueReferences(array $data, array $substitutions):array
+    private function substituteReferences(array $data, array $substitutions):array
     {
         foreach ($data as $key => $item) {
             if (is_array($item)) {
-                $data[$key] = $this->substitueReferences($item, $substitutions);
+                $data[$key] = $this->substituteReferences($item, $substitutions);
             }
             if ($item instanceof Data) {
                 $value = $item->getValue();
                 if (is_array($value)) {
-                    $item->setValue($this->substitueReferences($value, $substitutions));
+                    $item->setValue($this->substituteReferences($value, $substitutions));
                 } elseif ($value instanceof Reference) {
-                    $data[$key] = $this->replacementForReference($substitutions, $data[$key]);
+                    $item->setValue($this->replacementForReference($substitutions, $value));
+                } elseif ($value instanceof Data) {
+                    $item->setValue($value->getValue());
                 }
             }
             if ($item instanceof Reference) {

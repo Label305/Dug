@@ -56,10 +56,15 @@ class Data implements PathProvider
     }
 
     /**
-     * @param array|Reference $value
+     * @param array|Reference|Data $value
      */
     public function setValue($value)
     {
-        $this->value = $value;
+        if ($value instanceof Data) {
+            $child = $value->getValue();
+            $this->value = $child instanceof Data ? $child->getValue() : $value;
+        } else {
+            $this->value = $value;
+        }
     }
 }

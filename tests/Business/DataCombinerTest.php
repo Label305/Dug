@@ -7,6 +7,7 @@ namespace Tests\Business;
 use Dug\Business\DataCombiner;
 use Dug\Objects\Data;
 use Dug\Objects\Reference;
+use Dug\Objects\ReferenceToSingle;
 use Tests\TestCase;
 
 class DataCombinerTest extends TestCase
@@ -15,7 +16,6 @@ class DataCombinerTest extends TestCase
     public function testSingle()
     {
         /* Given */
-
         $data = [
             Data::build(['foo'], ['foo' => 'bar'])
         ];
@@ -30,7 +30,6 @@ class DataCombinerTest extends TestCase
     public function testSingleReference()
     {
         /* Given */
-
         $reference = new Reference(['bar', 1]);
         $data = [
             Data::build(['foo'], $reference)
@@ -42,6 +41,40 @@ class DataCombinerTest extends TestCase
         /* Then */
         assertThat(count($result), is(1));
         assertThat($result[0]->getValue()[0], is($reference));
+    }
+
+    public function testSingleReferenceToSingle()
+    {
+        /* Given */
+        $reference = new ReferenceToSingle(['bar', 1]);
+        $data = [
+            Data::build(['foo'], $reference)
+        ];
+
+        /* When */
+        $result = DataCombiner::combine($data);
+
+        /* Then */
+        assertThat(count($result), is(1));
+        assertThat($result[0]->getValue(), is([$reference]));
+    }
+
+    public function testMultipleReferenceToSingle()
+    {
+        /* Given */
+        $reference1 = new ReferenceToSingle(['pets', 1]);
+        $data1 = Data::build(['users', 123, 'pets'], $reference1);
+        $reference2 = new ReferenceToSingle(['pets', 2]);
+        $data2 = Data::build(['users', 123, 'pets'], $reference2);
+        $data = [$data1, $data2];
+
+        /* When */
+        $result = DataCombiner::combine($data);
+
+        /* Then */
+        assertThat(count($result[0]->getValue()), is(2));
+        assertThat($result[0]->getValue()[0], is($reference1));
+        assertThat($result[0]->getValue()[1], is($reference2));
     }
 
     public function testMultiple()

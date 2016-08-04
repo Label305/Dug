@@ -5,11 +5,11 @@ namespace Tests\Business;
 
 
 use Dug\Business\ReferenceResolver;
+use Dug\Dug;
 use Dug\Objects\Data;
 use Dug\Objects\Reference;
 use Dug\Objects\ReferenceToSingle;
 use Dug\Objects\Source;
-use Dug\Dug;
 use Tests\TestCase;
 
 class ReferenceResolverTest extends TestCase
@@ -43,7 +43,9 @@ class ReferenceResolverTest extends TestCase
         $dug->shouldReceive('sourceForPath')->once()->andReturn($source);
 
         $user = Data::build(['users', 1], ['id' => 1, 'name' => 'Joris']);
-        $dug->shouldReceive('data')->once()->andReturn([$user]);
+        $dug->shouldReceive('data')->once()->andReturn([
+            $user
+        ]);
 
         $input = [
             Data::build(['foo', 1], ['user' => new Reference(['users', 1])])
@@ -80,6 +82,59 @@ class ReferenceResolverTest extends TestCase
         /* Then */
         assertThat(count($result), is(1));
         assertThat($result[0]->getValue()['user'], is($user));
+    }
+
+    public function testDirectReferenceToSingle()
+    {
+        /* Given */
+        $dug = \Mockery::mock(Dug::class);
+        $source = Source::build(['users', '/[0-9]+/'], function () {
+        });
+        $dug->shouldReceive('sourceForPath')->once()->andReturn($source);
+
+        $user = Data::build(['users', 1], ['id' => 1, 'name' => 'Joris']);
+        $dug->shouldReceive('data')->once()->andReturn([
+            $user
+        ]);
+
+        $input = [
+            Data::build(['foo', 1], new ReferenceToSingle(['users', 1]))
+        ];
+
+        /* When */
+        $referenceResolver = new ReferenceResolver($dug);
+        $result = $referenceResolver->process($input);
+        
+        /* Then */
+        assertThat(count($result), is(1));
+        assertThat($result[0]->getValue(), is($user));
+    }
+    
+    public function testMultipleReferenceToSingle()
+    {
+        /* Given */
+        $dug = \Mockery::mock(Dug::class);
+        $source = Source::build(['users', '/[0-9]+/'], function () {
+        });
+        $dug->shouldReceive('sourceForPath')->once()->andReturn($source);
+
+        $user = Data::build(['users', 1], ['id' => 1, 'name' => 'Joris']);
+        $dug->shouldReceive('data')->once()->andReturn([
+            $user
+        ]);
+
+        $input = [
+            Data::build(['foo', 1], new ReferenceToSingle(['users', 1])),
+            Data::build(['foo', 1], new ReferenceToSingle(['users', 1]))
+        ];
+
+        /* When */
+        $referenceResolver = new ReferenceResolver($dug);
+        $result = $referenceResolver->process($input);
+        
+        /* Then */
+        assertThat(count($result), is(1));
+        assertThat($result[0]->getValue(), is($user));
     }
 
     public function testMultipleReferencesShouldCallOnce()

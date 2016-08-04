@@ -57,7 +57,7 @@ class DataCombiner
     private static function merge($item, $target)
     {
         if ($item instanceof Reference) {
-            $target = $item;
+            $target[] = $item;
         } else {
             $value = $item->getValue();
             if (is_array($value)) {

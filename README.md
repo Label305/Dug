@@ -6,6 +6,10 @@ Dug
 For combining different data sources to create webservice responses
 efficiently and manageable.
 
+__Experimental__
+
+This library is highly experimental, use at your own risk!
+
 The problem
 ---
 
